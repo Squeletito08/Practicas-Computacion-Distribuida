@@ -1,0 +1,57 @@
+# Archivos temporales de LaTeX
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+
+# Archivos de backup de editores
+*~
+*.bak
+*.tmp
+
+# Archivos de configuración de editores
+*.swp
+*.swo
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyi
+*.pyd
+*.cover
+*.log
+*.sqlite3
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs_analysis.dat
+*.nib
+*.swp
+*.swo
+
+# Archivos de caché y configuración de paquetes
+*.cache
+*.egg-info/
+*.eggs/
+*.pyenv/
+
+# Archivos generados por herramientas de construcción
+build/
+dist/
+*.egg
