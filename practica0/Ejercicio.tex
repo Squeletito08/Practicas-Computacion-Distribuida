@@ -1,0 +1,26 @@
+\begin{table}[h!]
+	\centering
+	\scalebox{0.85}{
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Número de nodos} & \textbf{Tiempo de primer ejecución} & \textbf{Tiempo de segunda ejecución} & \textbf{Tiempo de tercer ejecución} \\ \hline
+			1  & 423929 & 395582 & 394209 \\ \hline
+			2  & 345688 & 318127 & 335388 \\ \hline
+			3  & 293297 & 302060 & 296347 \\ \hline
+			4  & 293804 & 292093 & 287845 \\ \hline
+			6  & 339410 & 333481 & 335286 \\ \hline
+			8  & 353974 & 367256 & 357149 \\ \hline
+			10 & 489774 & 480664 & 472774 \\ \hline
+			12 & 550804 & 525111 & 554664 \\ \hline
+			15 & 672999 & 653181 & 690373 \\ \hline
+			20 & 832004 & 881720 & 845602 \\ \hline
+		\end{tabular}
+	}
+	\caption{Mediciones en microsegundos}
+\end{table}
+
+Vemos que las primeras 3 filas tardan más por tener menos nodos a los qué repartir el trabajo.
+
+Después, podemos notar que 4 nodos son el número ideal de nodos, pues tiene el mayor speedup. Esto puede ser a que las tareas inherentemente secuenciales se distribuyen mejor en 4 nodos.
+
+Por otra parte, conforme aumentan los nodos también el tiempo de ejecución. Esto puede ser por las tareas inherentemente secuenciales, las cuales no se pueden repartir aunque hayan más nodos. Además podemos agregar los pasos extra que se hacen para mandar mensajes, los cuales aumentan con la cantidad de nodos.
