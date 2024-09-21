@@ -1,7 +1,8 @@
 from Canales.CanalBroadcast import *
 from NodoBroadcast import *
 # from NodoGenerador import *
-# from NodoVecinos import *
+from NodoVecinos import *
+from NodoConvergecast import *
 
 # Las unidades de tiempo que les daremos a las pruebas
 TIEMPO_DE_EJECUCION = 50
@@ -15,35 +16,35 @@ class TestPractica1:
     # Aristas de adyacencias del árbol
     adyacencias_arbol = [[1, 2], [3], [5], [4], [], []]
 
-    # # Prueba para el algoritmo de conocer a los vecinos de vecinos.
-    # def test_ejercicio_uno(self):
-    #     ''' Método que prueba el algoritmo de conocer a los vecinos de vecinos. '''
-    #     # Creamos el ambiente y el objeto Canal
-    #     env = simpy.Environment()
-    #     bc_pipe = CanalBroadcast(env)
+    # Prueba para el algoritmo de conocer a los vecinos de vecinos.
+    def test_ejercicio_uno(self):
+        ''' Método que prueba el algoritmo de conocer a los vecinos de vecinos. '''
+        # Creamos el ambiente y el objeto Canal
+        env = simpy.Environment()
+        bc_pipe = CanalBroadcast(env)
 
-    #     # La lista que representa la gráfica
-    #     grafica = []
+        # La lista que representa la gráfica
+        grafica = []
 
-    #     # Creamos los nodos
-    #     for i in range(0, len(self.adyacencias)):
-    #         grafica.append(NodoVecinos(i, self.adyacencias[i],
-    #                                    bc_pipe.crea_canal_de_entrada(), bc_pipe))
+        # Creamos los nodos
+        for i in range(0, len(self.adyacencias)):
+            grafica.append(NodoVecinos(i, self.adyacencias[i],
+                                       bc_pipe.crea_canal_de_entrada(), bc_pipe))
 
-    #     # Le decimos al ambiente lo que va a procesar ...
-    #     for nodo in grafica:
-    #         env.process(nodo.conoceVecinos(env))
-    #     # ...y lo corremos
-    #     env.run(until=TIEMPO_DE_EJECUCION)
+        # Le decimos al ambiente lo que va a procesar ...
+        for nodo in grafica:
+            env.process(nodo.conoceVecinos(env))
+        # ...y lo corremos
+        env.run(until=TIEMPO_DE_EJECUCION)
 
-    #     # Ahora si, probamos
-    #     identifiers_esperados = [[0, 3, 5], [1, 2, 4],
-    #                              [1, 2, 4], [0, 3, 5], [1, 2, 4], [0, 3, 5]]
-    #     # Para cada nodo verificamos que su lista de identifiers sea la esperada.
-    #     for i in range(0, len(grafica)):
-    #         nodo = grafica[i]
-    #         assert set(identifiers_esperados[i]) == set(
-    #             nodo.identifiers), ('El nodo %d está mal' % nodo.id_nodo)
+        # Ahora si, probamos
+        identifiers_esperados = [[0, 3, 5], [1, 2, 4],
+                                 [1, 2, 4], [0, 3, 5], [1, 2, 4], [0, 3, 5]]
+        # Para cada nodo verificamos que su lista de identifiers sea la esperada.
+        for i in range(0, len(grafica)):
+            nodo = grafica[i]
+            assert set(identifiers_esperados[i]) == set(
+                nodo.identifiers), ('El nodo %d está mal' % nodo.id_nodo)
 
     # # Prueba para el algoritmo que construye un árbol generador.
     # def test_ejercicio_dos(self):
@@ -103,4 +104,36 @@ class TestPractica1:
         for nodo in grafica:
            
             assert mensaje_enviado == nodo.mensaje, (  
-                'El nodo %d no tiene el mensaje correcto' % nodo.id_nodo)
+                'El nodo %d no tiene el mensaje correcto' % nodo.id_nodo) 
+
+    # Prueba para el algoritmo de Convergecast.
+    def test_ejercicio_cuatro(self):
+        ''' Prueba para el algoritmo de Convergecast. '''
+        # Creamos el ambiente y el objeto Canal
+        env = simpy.Environment()
+        bc_pipe = CanalConvergecast(env)
+        # La lista que representa la gráfica
+        grafica = []
+        
+        # Padres de cada nodo
+        padres_arbol = [[0], [0], [0], [1], [3], [5]]
+
+        # Creamos los nodos
+        for i in range(0, len(self.adyacencias)):
+            grafica.append(NodoConvergecast(i, self.adyacencias_arbol[i],
+                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i][0]))
+
+        # Le decimos al ambiente lo que va a procesar ...
+        for nodo in grafica:
+            env.process(nodo.convergecast(env))
+        # ...y lo corremos
+    
+        env.run(until=TIEMPO_DE_EJECUCION)
+
+        # Probamos que todos los nodos tengan ya el mensaje        
+        mensaje_enviado = grafica[0].mensaje
+        print(mensaje_enviado)
+
+        for nodo in grafica:
+            assert str(nodo.id_nodo) in mensaje_enviado, (  
+                'El nodo 0 no tiene el mensaje del nodo %d' % nodo.id_nodo)
