@@ -106,9 +106,9 @@ class TestPractica1:
             assert mensaje_enviado == nodo.mensaje, (  
                 'El nodo %d no tiene el mensaje correcto' % nodo.id_nodo) 
 
-    # Prueba para el algoritmo de Convergecast.
-    def test_ejercicio_cuatro(self):
-        ''' Prueba para el algoritmo de Convergecast. '''
+    # Prueba para el algoritmo de Convergecast en la raíz.
+    def test1_ejercicio_cuatro(self):
+        ''' Prueba para el algoritmo de Convergecast en la raíz. '''
         # Creamos el ambiente y el objeto Canal
         env = simpy.Environment()
         bc_pipe = CanalConvergecast(env)
@@ -116,7 +116,7 @@ class TestPractica1:
         grafica = []
         
         # Padres de cada nodo
-        padres_arbol = [[0], [0], [0], [1], [3], [5]]
+        padres_arbol = [[0], [0], [0], [1], [3], [2]]
 
         # Creamos los nodos
         for i in range(0, len(self.adyacencias)):
@@ -130,10 +130,48 @@ class TestPractica1:
     
         env.run(until=TIEMPO_DE_EJECUCION)
 
-        # Probamos que todos los nodos tengan ya el mensaje        
-        mensaje_enviado = grafica[0].mensaje
-        print(mensaje_enviado)
+        # Probamos que la raíz tenga todos los mensajes        
+        mensaje_enviado = grafica[0].datos_recibidos
 
         for nodo in grafica:
             assert str(nodo.id_nodo) in mensaje_enviado, (  
                 'El nodo 0 no tiene el mensaje del nodo %d' % nodo.id_nodo)
+
+    # Prueba para el algoritmo de Convergecast en cada nodo.
+    def test2_ejercicio_cuatro(self):
+        ''' Prueba para el algoritmo de Convergecast en cada nodo. '''
+        # Creamos el ambiente y el objeto Canal
+        env = simpy.Environment()
+        bc_pipe = CanalConvergecast(env)
+        # La lista que representa la gráfica
+        grafica = []
+        
+        # Nuevo árbol
+        adyacencias_arbol = [[1, 2], [3], [5], [4, 6], [], [], []]
+        padres_arbol = [[0], [0], [0], [1], [3], [2], [3]]
+
+        # Creamos los nodos
+        for i in range(0, len(adyacencias_arbol)):
+            grafica.append(NodoConvergecast(i, adyacencias_arbol[i],
+                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i][0]))
+
+        # Le decimos al ambiente lo que va a procesar ...
+        for nodo in grafica:
+            env.process(nodo.convergecast(env))
+        # ...y lo corremos
+        env.run(until=TIEMPO_DE_EJECUCION)
+
+        # Probamos que todos los nodos tengan bien convergecast. 
+        resultado = [
+            "[5, None][2, None][0, None][4, None][3, None][1, None][6, None]",
+            "[4, None][3, None][1, None][6, None]",
+            "[5, None][2, None]",
+            "[4, None][3, None][6, None]",
+            "[4, None]",
+            "[5, None]",
+            "[6, None]"
+        ]
+
+        for i in range(0, len(adyacencias_arbol)):
+            assert grafica[i].datos_recibidos == resultado[i], (  
+                'El nodo %d no tiene todos los mensajes' % i)
