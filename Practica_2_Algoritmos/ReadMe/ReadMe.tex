@@ -1,0 +1,30 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+
+%----- Configuración del estilo del documento------%
+\usepackage{epsfig,graphicx}
+\usepackage[left=2cm,right=2cm,top=1.8cm,bottom=2.3cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\setlength{\parskip}{3mm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\textit{Página \thepage \hspace{1pt} de \pageref{LastPage}}}
+
+\renewcommand\refname{Lista de referencias}
+
+\begin{document}
+	
+	\input{encabezado.tex}
+	
+	\input{reporte.tex}
+	
+	\clearpage
+	
+	
+\end{document}
