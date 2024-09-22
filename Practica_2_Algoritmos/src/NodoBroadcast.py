@@ -23,16 +23,11 @@ class NodoBroadcast(Nodo):
         #Si el nodo es distinguido    
         if self.id_nodo == 0:
             data = self.mensaje
-            for child in self.vecinos:
-                #El mensaje que enviera a sus vecinos
-                self.canal_salida.envia('GO({})'.format(data), [child])
-                yield env.timeout(TICK)
+            self.canal_salida.envia('GO({})'.format(data), self.vecinos)
         
         while True:
             mensaje = yield self.canal_entrada.get()
             if mensaje.startswith('GO'):
                 #Extraemos el mensaje para mandarlo al siguiente
                 data = mensaje[mensaje.index('(') + 1: mensaje.index(')')]
-                for child in self.vecinos:
-                    self.canal_salida.envia('GO({})'.format(data), [child])
-                    yield env.timeout(TICK)
+                self.canal_salida.envia('GO({})'.format(data), self.vecinos)

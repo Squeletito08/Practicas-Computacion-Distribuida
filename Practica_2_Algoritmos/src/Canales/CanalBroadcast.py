@@ -1,6 +1,8 @@
 import simpy
 from Canales.Canal import Canal
 
+#Demora un tiempo para ejemplificar el costo de los pasos que se realizan 
+TICK = 1
 
 class CanalBroadcast(Canal):
     '''
