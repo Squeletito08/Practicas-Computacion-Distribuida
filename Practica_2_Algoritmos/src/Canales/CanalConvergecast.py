@@ -16,6 +16,7 @@ class CanalConvergecast(Canal):
         '''
         Envia un mensaje al canal de salida de un vecino.
         '''
+        
         if hasattr(vecino, 'recibe'):
             vecino.recibe.put(mensaje)
         else:
