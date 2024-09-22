@@ -116,12 +116,12 @@ class TestPractica1:
         grafica = []
         
         # Padres de cada nodo
-        padres_arbol = [[0], [0], [0], [1], [3], [2]]
+        padres_arbol = [0, 0, 0, 1, 3, 2]
 
         # Creamos los nodos
         for i in range(0, len(self.adyacencias)):
             grafica.append(NodoConvergecast(i, self.adyacencias_arbol[i],
-                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i][0]))
+                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i]))
 
         # Le decimos al ambiente lo que va a procesar ...
         for nodo in grafica:
@@ -134,7 +134,7 @@ class TestPractica1:
         mensaje_enviado = grafica[0].datos_recibidos
 
         for nodo in grafica:
-            assert str(nodo.id_nodo) in mensaje_enviado, (  
+            assert "["+ str(nodo.id_nodo) +", "+ str(nodo.mensaje) +"]" in mensaje_enviado, (  
                 'El nodo 0 no tiene el mensaje del nodo %d' % nodo.id_nodo)
 
     # Prueba para el algoritmo de Convergecast en cada nodo.
@@ -148,12 +148,12 @@ class TestPractica1:
         
         # Nuevo árbol
         adyacencias_arbol = [[1, 2], [3], [5], [4, 6], [], [], []]
-        padres_arbol = [[0], [0], [0], [1], [3], [2], [3]]
+        padres_arbol = [0, 0, 0, 1, 3, 2, 3]
 
         # Creamos los nodos
         for i in range(0, len(adyacencias_arbol)):
             grafica.append(NodoConvergecast(i, adyacencias_arbol[i],
-                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i][0]))
+                                         bc_pipe.crea_canal_de_entrada(), bc_pipe, padres_arbol[i]))
 
         # Le decimos al ambiente lo que va a procesar ...
         for nodo in grafica:
