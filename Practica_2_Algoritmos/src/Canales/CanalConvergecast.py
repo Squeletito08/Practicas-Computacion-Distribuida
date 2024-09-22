@@ -4,7 +4,7 @@ from Canales.Canal import Canal
 
 class CanalConvergecast(Canal):
     '''
-    Clase que modela un canal, permite enviar mensajes one-to-many.
+    Clase que modela un canal, permite enviar mensajes one-to-one.
     '''
 
     def __init__(self, env, capacidad=simpy.core.Infinity):
@@ -12,15 +12,15 @@ class CanalConvergecast(Canal):
         self.capacidad = capacidad
         self.canales = []
 
-    def envia(self, mensaje, padre):
+    def envia(self, mensaje, vecino):
         '''
-        Envia un mensaje a los canales de salida de los vecinos.
+        Envia un mensaje al canal de salida de un vecino.
         '''
-        if hasattr(padre, 'recibe'):
-            padre.recibe.put(mensaje)
+        if hasattr(vecino, 'recibe'):
+            vecino.recibe.put(mensaje)
         else:
-            #obtiene el canal de salida del vecino  y pone el mensaje
-            canal_salida = self.canales[padre]
+            # Obtiene el canal de salida del vecino  y pone el mensaje
+            canal_salida = self.canales[vecino]
             if canal_salida:
                 canal_salida.put(mensaje)
         
