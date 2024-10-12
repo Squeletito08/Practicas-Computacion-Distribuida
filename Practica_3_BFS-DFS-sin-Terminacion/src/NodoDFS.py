@@ -22,7 +22,7 @@ def menor_numero(lista):
     for numero in lista:
         if numero < menor:
             menor = numero  # Actualizamos el menor si encontramos un número más pequeño
-            return menor
+        return menor
 
 
 def eliminar_elementos(lista_principal, elementos_a_eliminar):
@@ -85,7 +85,7 @@ class NodoDFS(Nodo):
                 # Convertir las listas en conjuntos para no contar el orden de estas
                 conjunto1=set(self.vecinos)
                 conjunto2=set(self.visitados)
-                if (conjunto1==conjunto2):
+                if (conjunto1.issubset(conjunto2)):
                  
                     self.canal_salida.envia([self.id_nodo,'VISITED'],self.vecinos)
                     # yield env.timeout(TICK*2)
