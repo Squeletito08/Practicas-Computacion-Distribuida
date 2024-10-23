@@ -10,8 +10,11 @@ class NodoBFS(Nodo):
     ''' Implementa la interfaz de Nodo para el algoritmo de Broadcast.'''
     def __init__(self, id_nodo, vecinos, canal_entrada, canal_salida):
         ''' Constructor de nodo que implemente el algoritmo BFS. '''
-        ''' Aquí va tu implementacion '''
         super().__init__(id_nodo,vecinos,canal_entrada,canal_salida)
+        self.id_nodo = id_nodo
+        self.vecinos = vecinos
+        self.canal_entrada = canal_entrada
+        self.canal_salida = canal_salida
         self.padre = id_nodo
         self.distancia = math.inf
 
