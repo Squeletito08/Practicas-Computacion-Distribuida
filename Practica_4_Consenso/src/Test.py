@@ -3,11 +3,12 @@ from NodoConsenso import *
 from Canales.CanalRecorridos import *
 from NodoBFS import *
 from NodoDFS import *
+from NodoBroadcast import *
 
 # Las unidades de tiempo que les daremos a las pruebas
 TIEMPO_DE_EJECUCION = 50
 
-class TestPractica1:
+class TestRecorridos:
     ''' Clase para las pruebas unitarias de la práctica 1. '''
     # Las aristas de adyacencias de la gráfica.
     adyacencias = [[1, 3, 4, 6], [0, 3, 5, 7], [3, 5, 6], [0, 1, 2], [0], [1, 2], [0, 2], [1]]
@@ -73,6 +74,40 @@ class TestPractica1:
             assert nodo.padre == padres_esperados[i], ('El nodo %d tiene mal padre' % nodo.id_nodo)
             assert nodo.hijos == hijos_esperados[i], ('El nodo %d tiene distancia equivocada' % nodo.id_nodo)
 
+class TestBroadcast:
+    ''' Clase para las pruebas unitarias de la práctica 1. '''
+    # Las aristas de adyacencias de la gráfica.
+    adyacencias = [[1, 2], [0, 3], [0, 3, 5], [1, 2, 4], [3, 5], [2, 4]]
+
+    # Aristas de adyacencias del árbol
+    adyacencias_arbol = [[1, 2], [3], [5], [4], [], []]
+
+    def test_ejercicio_tres(self):
+        ''' Prueba para el algoritmo de Broadcast. '''
+        # Creamos el ambiente y el objeto Canal
+        env = simpy.Environment()
+        bc_pipe = CanalRecorridos(env)
+        # La lista que representa la gráfica
+        grafica = []
+
+        # Creamos los nodos
+        for i in range(0, len(self.adyacencias)):
+            grafica.append(NodoBroadcast(i, self.adyacencias_arbol[i],
+                                         bc_pipe.crea_canal_de_entrada(), bc_pipe))
+
+        # Le decimos al ambiente lo que va a procesar ...
+        for nodo in grafica:
+            env.process(nodo.broadcast(env))
+        # ...y lo corremos
+        env.run(until=TIEMPO_DE_EJECUCION)
+
+        # Probamos que todos los nodos tengan ya el mensaje
+        mensaje_enviado = grafica[0].mensaje
+        for nodo in grafica:
+           
+            assert mensaje_enviado == nodo.mensaje, (  
+                'El nodo %d no tiene el mensaje correcto' % nodo.id_nodo) 
+            
 class TestPractica2:
     ''' Clase para las pruebas unitarias de la práctica 2. '''
 
