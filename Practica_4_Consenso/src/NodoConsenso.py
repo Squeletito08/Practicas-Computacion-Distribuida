@@ -19,40 +19,37 @@ class NodoConsenso(Nodo):
         # Atributos extra
         self.V = [None] * (len(vecinos) + 1) # Llenamos la lista de Nodos
         self.V[id_nodo] = id_nodo
-        self.New = set()
+        self.New = set([id_nodo])
         self.rec_from = [None] * (len(vecinos) + 1)
         self.fallare = False      # Colocaremos esta en True si el nodo fallará
         self.lider = None         # La elección del lider.
         self.fallo = math.inf
-        self.New.add((0, id_nodo))
 
     def consenso(self, env, f):
         '''El algoritmo de consenso.'''
-        # Escoger cuando fallarán los nodos.
+        # Escoger cuando fallarán los nodos, entre la rondas 0 y f.
         if self.id_nodo < f:
             self.fallo = randint(0, f)
             self.fallare = True
-
-        while env.now <= f:
-            if self.New != set() and env.now < self.fallo:
-                #print(self.New)
-                #print(self.id_nodo)
-                self.canal_salida.envia([self.New, self.id_nodo], self.vecinos)
-            [rec, p] = yield self.canal_entrada.get()
-            #print(rec)
-            #print(p)
-            self.rec_from[p] = rec
-            self.New = set()
-            for j in self.vecinos:
-                if self.rec_from[j] != None:
-                    for i in self.rec_from[j]:
-                        [v,k] = i
-                        if self.V[k] == None:
-                            self.V[k] = v
-                            self.New.add((v, k))
-            yield env.timeout(TICK)
-
-        for v in self.V:
-            if v != None:
-                self.lider = v
-        self.lider = None
+        # Algoritmo de consenso.
+        while True:
+            while env.now < f: # Comienzo de una ronda.
+                # Mandan mensaje los nodos que no han fallado y con algo nuevo.
+                if self.New != set() and env.now < self.fallo:
+                    self.canal_salida.envia((self.New, self.id_nodo), self.vecinos)
+                # Guardamos lo recibido en rec_from.
+                (rec, j) = yield self.canal_entrada.get()
+                self.rec_from[j] = rec
+                # Agregamos los mensajes nuevos en V y los guardamos en New.
+                self.New = set()
+                for i in self.rec_from[j]:
+                    if self.V[i] == None:
+                        self.V[i] = i
+                        self.New.add(i)
+                yield env.timeout(TICK) # Fin de la ronda.
+                print(env.now)
+            # Escogemos al líder.
+            for v in self.V:
+                if v != None:
+                    self.lider = v
+                    return self.lider
