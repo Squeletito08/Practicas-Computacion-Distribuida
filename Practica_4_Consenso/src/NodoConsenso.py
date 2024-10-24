@@ -1,4 +1,3 @@
-import simpy
 from random import randint
 from Nodo import *
 from Canales.CanalRecorridos import *
@@ -33,8 +32,8 @@ class NodoConsenso(Nodo):
             self.fallare = True
         # Algoritmo de consenso.
         while True:
-            while env.now < f: # Comienzo de una ronda.
-                # Mandan mensaje los nodos que no han fallado y con algo nuevo.
+            while env.now <= f: # Comienzo de una ronda, desde 0 a f.
+                # Mandan mensaje los nodos que no han fallado y con algo en New.
                 if self.New != set() and env.now < self.fallo:
                     self.canal_salida.envia((self.New, self.id_nodo), self.vecinos)
                 # Guardamos lo recibido en rec_from.
@@ -47,7 +46,6 @@ class NodoConsenso(Nodo):
                         self.V[i] = i
                         self.New.add(i)
                 yield env.timeout(TICK) # Fin de la ronda.
-                print(env.now)
             # Escogemos al líder.
             for v in self.V:
                 if v != None:
