@@ -1,0 +1,94 @@
+\section{Descripción de Broadcast}
+
+Para la implementación del reloj de Lamport usamos como base el algoritmo de Broadcast, y principalmente nos basamos en el siguiente algoritmo:
+
+\begin{algorithm}
+	\caption{Broadcast con relojes}
+	\begin{algorithmic}[1]
+		\If{$\text{id}_{\text{nodo}} = 0$}
+		\State mensaje $\gets$ datos
+		\State esperar(1 - 5)
+		\For{$k$ en vecinos}
+		\State reloj $\gets$ reloj + 1
+		\State eventos.agregar([reloj, 'E'(evento), datos, $\text{id}_{\text{nodo}}$, $k$])
+		\State enviar(datos, reloj, $\text{id}_{\text{nodo}}$)
+		\EndFor
+		\EndIf
+		\While{verdadero}
+		\State esperar(1 - 5)
+		\State (datos, reloj\_remoto, $j$) $\gets$ canal\_entrada
+		\State mensaje $\gets$ datos
+		\State reloj $\gets$ $\max$(reloj, reloj\_remoto) + 1
+		\State eventos.agregar([reloj, 'R'(evento\_recibido), datos, $j$, $\text{id}_{\text{nodo}}$])
+		\State esperar(1 - 5)
+		\For{$k$ en vecinos}
+		\If{$k \neq j$}
+		\State reloj $\gets$ reloj + 1
+		\State eventos.agregar([reloj, 'E', datos, $\text{id}_{\text{nodo}}$, $k$])
+		\State enviar(datos, reloj, $\text{id}_{\text{nodo}}$)
+		\EndIf
+		\EndFor
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+
+
+El método \texttt{broadcast} implementa el algoritmo de broadcast utilizando el reloj de Lamport, y consiste en los siguientes pasos:
+
+\subsection{Nodo Distinguido (Inicio del Broadcast)}
+
+\begin{enumerate}
+	\item Si el nodo es distinguido (con \texttt{id\_nodo = 0}), inicia el proceso de difusión asignando el mensaje inicial \texttt{data} a su variable de instancia \texttt{mensaje}.
+	
+	\item Antes de enviar el mensaje, espera un tiempo aleatorio utilizando la función \texttt{env.timeout(randint(1, 5))}, que simula el costo del procesamiento o latencia en un sistema distribuido.
+	
+	\item El nodo distinguido incrementa su \texttt{reloj} de Lamport en $+1$ antes de enviar el mensaje a cada vecino, asegurando que el evento de envío tenga una marca temporal actualizada.
+	
+	\item Cada evento de envío se registra en la lista \texttt{eventos} con la siguiente estructura:
+	\[
+	[ \text{reloj}, \text{'E'}, \text{data}, \text{id\_nodo}, \text{vecino} ]
+	\]
+	donde:
+	\begin{itemize}
+		\item \texttt{reloj} es la marca temporal actual,
+		\item 'E' indica un evento de envío,
+		\item \texttt{data} es el contenido del mensaje,
+		\item \texttt{id\_nodo} es el nodo emisor, y
+		\item \texttt{vecino} es el nodo receptor.
+	\end{itemize}
+\end{enumerate}
+
+\subsection{Recepción y Retransmisión de Mensajes}
+
+\begin{enumerate}
+	\item Cada nodo entra en un bucle infinito donde espera la llegada de un mensaje en su \texttt{canal\_entrada}.
+	\item Al recibir un mensaje, el nodo extrae el contenido del mensaje, el reloj remoto y el identificador del nodo emisor (\texttt{j}).
+	\item El reloj de Lamport del nodo se actualiza utilizando la fórmula:
+	\[
+	\text{reloj} = \max(\text{reloj\_local}, \text{reloj\_remoto}) + 1
+	\]
+	Esto asegura que la marca temporal del evento de recepción es consistente en el sistema distribuido.
+	\item El evento de recepción se registra en la lista \texttt{eventos} con la estructura:
+	\[
+	[\text{reloj}, \text{'R'}, \text{data}, \text{j}, \text{id\_nodo}]
+	\]
+	donde:
+	\begin{itemize}
+		\item \texttt{reloj} es la marca temporal del evento,
+		\item 'R' indica un evento de recepción,
+		\item \texttt{data} es el contenido del mensaje,
+		\item \texttt{j} es el nodo emisor del mensaje, y
+		\item \texttt{id\_nodo} es el nodo receptor.
+	\end{itemize}
+	\item El nodo espera un tiempo aleatorio antes de retransmitir el mensaje a todos sus vecinos excepto al nodo que le envió el mensaje, excluyendo a \texttt{j} de la lista de vecinos.
+	\item Para cada vecino restante, incrementa su reloj de Lamport y registra el evento de retransmisión en la lista de eventos con la misma estructura que el evento de envío inicial.
+	\item Finalmente, el mensaje es enviado a los vecinos filtrados utilizando el método \texttt{canal\_salida.envia}.
+\end{enumerate}
+
+\section{Actualización del Reloj de Lamport}
+
+Cada evento (envío o recepción) incrementa el reloj de Lamport, manteniendo la consistencia temporal en el sistema distribuido. La estructura de eventos en \texttt{eventos} facilita la auditoría del orden de eventos en la red y permite analizar la causalidad entre eventos.
+
+
+
