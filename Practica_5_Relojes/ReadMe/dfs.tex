@@ -1,0 +1,76 @@
+
+
+\section{Descripción DFS con reloj vectorial}
+
+
+\subsection{Explicación DFS}
+
+Para implementar el DFS con relojes se tuvo que ocupar una lista del tamaño de la cantidad de nodos en la gráfica, por lo cual se le tuvo que decir cuál era la cantidad de nodos desde un inicio a la gráfica.\\
+
+Para implementar la demora y simular un sistema asíncrono se utilizó la función \texttt{randint} y \texttt{yield env.time(valor)}, colocándola justo después de recibir un mensaje. Así, cada mensaje recibido sería demorado cierto tiempo antes de poder ser procesado.\\
+
+En cada envío se agregó el reloj vectorial de ese momento; así, cuando se recibe el mensaje, se toma el mayor reloj y se incrementa en 1 solo en la entrada que corresponde a ese nodo. Cuando se manda tanto “GO” como “BACK”, se incrementa en uno el reloj vectorial.\\
+
+Aparte de mandar el mensaje, el nodo tiene que guardar en su lista de eventos el evento que acaba de ocurrir, ya sea que fuera de envío (E) o de recepción (R). El evento contiene $(\text{reloj}, \text{tipo de envío},  \text{conjunto de visitados}, \\ \text{nodo que envía}, \text{nodo que recibe})$. En cada evento, el reloj debe ir incrementando en una de sus entradas. Para su implementación en Python, cuando se manda el reloj a otros nodos, se debe mandar una copia del reloj; de lo contrario, se manda la referencia, y todos los relojes tendrán el mismo valor, provocando que todos los eventos tengan el mismo reloj.\\
+
+\subsection{Cambios respecto a la práctica 3}
+
+Por último, respecto al algoritmo DFS que se mandó en la práctica 3, donde cada nodo que era visitado mandaba a sus vecinos que era visitado, ahora en lugar de eso, dentro del mensaje que se envía manda un conjunto de los nodos que se han visitado (incluyéndose a sí mismo) para evitar mandar mensajes extra. Esto es porque ahora no nos conviene que se manden muchos mensajes debido a que el sistema es asíncrono.\\
+
+
+\subsection{Algoritmo}
+
+\begin{algorithm}
+\caption{DFS Algorithm with Logical Clocks}
+\begin{algorithmic}[1]
+    \State \textbf{Input:} $N$ (number of nodes), id\_node (unique node ID), $V$ (neighbor set), env (simulation environment)
+    \State Initialize $P \leftarrow$ id\_node, $H \leftarrow \emptyset$, $R \leftarrow [0, \ldots, 0]$ (logical clock vector)
+    \If{id\_node $= 0$} \Comment{Node is the root}
+        \State Set $P \leftarrow$ id\_node, $H \leftarrow [V[0]]$
+        \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+        \State Record event: $(R, 'E', \{ \text{id\_node} \}, \text{id\_node}, V[0])$
+        \State Send msg: ("GO", \{id\_node\}, id\_node, $R$) to $V[0]$
+    \EndIf
+    \While{\textbf{True}}
+        \State Wait for a random delay
+        \State Receive msg (type, visited, $p_j$, $R_j$)
+        \State Synchronize logical clock $R \leftarrow \max(R, R_j)$
+        \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+        \State Record event: $(R, 'R', \text{visited}, p_j, \text{id\_node})$
+        \If{type $=$ "GO"}
+            \State $P \leftarrow p_j$
+            \If{$V \subseteq$ visited}
+                \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+                \State Record event: $(R, 'E', \text{visited} \cup \{\text{id\_node}\}, \text{id\_node}, P)$
+                \State Send msg: ("BACK", \text{visited} $\cup$ \{id\_node\}, id\_node, $R$) to $P$
+            \Else
+                \State Select unvisited neighbor $s \leftarrow V \setminus \text{visited}$
+                \State $H \leftarrow [s]$
+                \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+                \State Record event: $(R, 'E', \text{visited} \cup \{\text{id\_node}\}, \text{id\_node}, s)$
+                \State Send msg: ("GO", \text{visited} $\cup$ \{id\_node\}, id\_node, $R$) to $s$
+            \EndIf
+        \ElsIf{type $=$ "BACK"} \Comment{Message type is "BACK", return to parent node}
+            \If{$V \subseteq$ visited}
+                \If{$P =$ id\_node}
+                    \State \textbf{terminate} DFS algorithm
+                \Else
+                    \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+                    \State Record event: $(R, 'E', \text{visited}, \text{id\_node}, P)$
+                    \State Send msg: ("BACK", \text{visited}, \text{id\_node}, $R$) to $P$
+                \EndIf
+            \Else
+                \State Select unvisited neighbor $t \leftarrow V \setminus \text{visited}$
+                \State $H \leftarrow H \cup \{t\}$ \Comment{Add neighbor to list of children}
+                \State Increment logical clock $R[$ id\_node $] \leftarrow R[$ id\_node $] + 1$
+                \State Record event: $(R, 'E', \text{visited}, \text{id\_node}, t)$
+                \State Send msg: ("GO", \text{visited}, \text{id\_node}, $R$) to $t$
+            \EndIf
+        \EndIf
+    \EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
