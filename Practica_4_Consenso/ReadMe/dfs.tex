@@ -1,0 +1,47 @@
+\section{Explicación del Algoritmo DFS en la Clase \texttt{NodoDFS}}
+
+Nuestra implementación de DFS sin terminación simula una búsqueda en profundidad sobre una red de nodos. Lo hacemos de la siguiente forma: 
+
+\subsection{Inicialización del Nodo Raíz}
+
+El nodo inicial o proceso distinguido, identificado por \texttt{id\_nodo = 0} (esto por convención), es el responsable de iniciar la exploración. Este proceso hace:
+
+\begin{itemize}
+	\item Envía un mensaje \texttt{VISITED()} a todos sus vecinos, informando que ha sido visitado.
+	\item Selecciona el menor de sus vecinos no visitados mediante la función \texttt{menor\_numero()} (esto es un detalle de implementación que es equivalente a elegir un vecino aleatorio cada vez), lo agrega como hijo y le envía un mensaje \texttt{GO()} para iniciar su exploración.
+\end{itemize}
+
+\subsection{Recepción de Mensajes \texttt{GO()}}
+
+Cuando un nodo recibe un mensaje \texttt{GO()}, hace que el nodo que envió el mensaje sea su \textit{padre} y después:
+
+\begin{itemize}
+	\item Si todos sus vecinos ya han sido visitados, el nodo envía un mensaje \texttt{VISITED()} a todos sus vecinos y un mensaje \texttt{BACK()} a su \textit{padre}, indicando que ha completado el recorrido. 
+	\item Si hay vecinos que no han sido visitados, selecciona el menor de esos vecinos utilizando \texttt{menor\_numero()} y le envía un mensaje \texttt{GO()}. Luego, actualiza su lista de \textit{hijos} para reflejar esta conexión.
+\end{itemize}
+
+\subsection{Envío y Recepción de Mensajes \texttt{BACK()}}
+
+Cuando un nodo recibe un mensaje \texttt{BACK()}, verifica si todos sus vecinos han sido visitados:
+
+\begin{itemize}
+	\item Si es así y el nodo no es el nodo raíz, envía un mensaje \texttt{BACK()} a su \textit{padre}, indicando que ha terminado el recorrido.
+	\item Si aún quedan vecinos por explorar, selecciona el menor de los vecinos no visitados, lo agrega como hijo, y le envía un mensaje \texttt{GO()}. El nodo también actualiza su lista de nodos visitados enviando un mensaje \texttt{VISITED()} a todos sus vecinos.
+\end{itemize}
+
+\subsection{Recepción de Mensajes \texttt{VISITED()}}
+
+Los mensajes \texttt{VISITED()} permiten a los nodos actualizar su lista de vecinos ya visitados. Si un nodo recibe este mensaje de un vecino, lo agrega a su lista \texttt{visitados}, haciendo que no lo vuelva a explorar eventualmente.
+
+\subsection{Finalización del Algoritmo}
+
+El proceso DFS finaliza cuando el nodo raíz ha recibido mensajes \texttt{BACK()} de todos sus hijos. En este punto, se considera que todo el árbol DFS ha sido explorado. La terminación del algoritmo es señalada con un mensaje de finalización y la estructura completa del árbol ha sido descubierta.
+
+\subsection{Funciones Auxiliares}
+
+Nos apoyamos de varias funciones auxiliares en el algoritmo:
+
+\begin{itemize}
+	\item \texttt{menor\_numero(lista)}: Busca y devuelve el menor número de una lista dada. 
+	\item \texttt{eliminar\_elementos(lista\_principal, elementos\_a\_eliminar)}: Elimina de \texttt{lista\_principal} todos los elementos presentes en \texttt{elementos\_a\_eliminar}.
+\end{itemize}

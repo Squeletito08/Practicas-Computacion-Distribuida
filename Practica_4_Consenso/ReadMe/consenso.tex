@@ -1,0 +1,32 @@
+
+
+\section{Constructor de la clase NodoConsenso}
+
+
+\begin{itemize}
+	\item \texttt{V}: Vector que mantiene el conjunto de nodos descubiertos.
+	\item \texttt{New}: Conjunto que contiene los nodos recién descubiertos en una ronda.
+	\item \texttt{rec\_from}: Vector que almacena los mensajes recibidos de otros nodos.
+	\item \texttt{fallare} y \texttt{fallo}: Determinan si el nodo fallará y cuándo lo hará.
+	\item \texttt{lider}: Nodo líder al final del proceso de consenso.
+\end{itemize}
+
+\section{Algoritmo de Consenso}
+
+El método \texttt{consenso} es el núcleo del algoritmo. A continuación, se describen sus pasos principales:
+
+\begin{enumerate}
+	\item \textbf{Determinación del fallo:} Los nodos cuyo identificador sea menor a la cantidad de fallos tendrán su atributo \textit{fallare} como verdadero. Además cada uno selecciona aleatoriamente una ronda en la que fallará, dentro de las primeras \(f+1\) rondas, numeradas de \(0\) a \(f\).
+	
+	\item \textbf{Inicio de las rondas:} Cada ronda tiene una duración equivalente a la constante \textit{TICK}. Los nodos que no han fallado y que tienen información nueva en su conjunto \textit{New}, envían esta información a sus vecinos a través del \textit{canal\_salida}.
+	
+	\item \textbf{Recepción de mensajes:} Los nodos reciben los mensajes de sus vecinos a través del \textit{canal\_entrada}. La información recibida se guarda en \textit{rec\_from} y haremos que el conjunto \textit{New} sea vacío, para que después los nodos descubiertos se agreguen a \textit{V} y \textit{New} si aún no han sido descubiertos.
+	
+	\item \textbf{Elección del líder:} Una vez que han transcurrido todas las rondas (hasta \textit{f}), el nodo selecciona el líder como el primer nodo válido (no nulo) que encuentra en su vector \textit{V}. Este nodo se considera el líder de la red.
+
+	
+	\item \textbf{Finalización:} El algoritmo termina una vez que el líder ha sido seleccionado.
+\end{enumerate}
+
+
+Este algoritmo de consenso permite a los nodos de una red distribuida ponerse de acuerdo sobre un líder, incluso cuando algunos de los nodos pueden fallar de manera no predecible. Utiliza un enfoque simple basado en la transmisión de mensajes y un tiempo de espera para simular el fallo de nodos. El algoritmo es robusto y garantiza la elección de un líder mientras haya un número suficiente de nodos no fallidos en la red.

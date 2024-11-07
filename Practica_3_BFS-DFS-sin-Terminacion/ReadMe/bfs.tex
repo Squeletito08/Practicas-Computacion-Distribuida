@@ -1,0 +1,35 @@
+\section{Explicación del Algoritmo BFS de la clase \texttt{NodoBFS}}
+
+Nuestra implementación del algoritmo BFS sin terminación utiliza mensajes para la comunicación entre nodos del ambiente. Describiremos los diferentes casos con los que se puede encontrar un nodo o proceso al momento de ejecutarse el algoritmo:
+
+\subsection{Inicialización del Nodo Raíz}
+
+El nodo raíz, el cual por convención es el nodo con \texttt{id\_nodo = 0}, es el responsable de iniciar la ejecución del algoritmo. Este nodo envía un mensaje \texttt{GO()} a sí mismo con un valor inicial de distancia igual a \texttt{-1}. 
+
+\subsection{Recepción de Mensajes \texttt{GO()}}
+
+Cuando un nodo recibe un mensaje \texttt{GO()} de uno de sus vecinos, tenemos dos casos:
+
+\begin{itemize}
+	\item Si el nodo aún no ha sido asignado a ningún padre (es decir, \texttt{padre = -1}), significa que este es el primer mensaje \texttt{GO()} que recibe. El nodo que envió el mensaje se convierte en su \textit{padre}, su lista de \textit{hijos} se inicializa como vacía, y su nivel en el árbol BFS se establece como la distancia recibida más uno (\texttt{distancia = d + 1}). Además, el nodo determina cuántos mensajes \texttt{BACK()} debe esperar de sus vecinos restantes.
+	
+	\item Si el nodo ya tiene un padre pero recibe un mensaje con una distancia menor a la que actualmente tiene asignada, significa que ha encontrado un camino más corto hacia el nodo raíz. En este caso, el nodo actualiza su padre, su nivel de distancia, y reinicia su contador de mensajes \texttt{BACK()} esperados. 
+\end{itemize}
+
+\subsection{Envío de Mensajes \texttt{GO()} a los Vecinos}
+
+Una vez que un nodo se une al árbol, verifica si hay más vecinos a los cuales aún no ha enviado un mensaje \texttt{GO()}. Si existen vecinos pendientes, el nodo envía un nuevo mensaje \texttt{GO()} a esos vecinos con la distancia incrementada en uno (\texttt{d + 1}). Si no quedan más vecinos a los cuales enviar mensajes, el nodo envía un mensaje \texttt{BACK()} a su \textit{padre} indicando que ha terminado la propagación. 
+\subsection{Recepción de Mensajes \texttt{BACK()}}
+
+Cuando un nodo recibe un mensaje \texttt{BACK()} de uno de sus vecinos, debe determinar si ese vecino se ha unido al árbol BFS:
+
+\begin{itemize}
+	\item Si el mensaje \texttt{BACK()} indica que el vecino es parte del árbol (\texttt{resp = yes}), el nodo lo agrega a su lista de \textit{hijos}.
+	\item En cualquier caso, el nodo disminuye su contador de mensajes \texttt{BACK()} esperados. Una vez que ha recibido todos los mensajes esperados, envía un mensaje \texttt{BACK()} a su \textit{padre}. 
+\end{itemize}
+
+\subsection{Finalización del Algoritmo}
+
+El algoritmo finaliza cuando el nodo raíz ha recibido todos los mensajes \texttt{BACK()} esperados de sus vecinos. Aquí se considera que el árbol BFS está completamente construido y se notifica que el proceso ha terminado.
+
+
